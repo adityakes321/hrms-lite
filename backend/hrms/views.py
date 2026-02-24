@@ -89,3 +89,25 @@ def attendance_summary_view(request, employee_id: str):
     return api_response(serializer.data)
 
 
+@api_view(["GET"])
+def attendance_today_summary_view(request):
+    today = date_cls.today()
+
+    present_today = Attendance.objects.filter(date=today, status=Attendance.STATUS_PRESENT).count()
+    absent_today = Attendance.objects.filter(date=today, status=Attendance.STATUS_ABSENT).count()
+
+    return api_response({"date": today.isoformat(), "present_today": present_today, "absent_today": absent_today})
+
+
+@api_view(["GET", "POST"])
+def auth_api_key_stub_view(request):
+    # This endpoint is not part of HRMS Lite. Return JSON to avoid frontend JSON parse errors.
+    return api_response({"api_key": None}, "Not implemented", success=False, status_code=status.HTTP_200_OK)
+
+
+@api_view(["GET", "POST"])
+def auth_admin_config_stub_view(request):
+    # This endpoint is not part of HRMS Lite. Return JSON to avoid frontend JSON parse errors.
+    return api_response({"enabled": False}, "Not implemented", success=False, status_code=status.HTTP_200_OK)
+
+

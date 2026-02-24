@@ -20,6 +20,12 @@ export interface AttendanceSummary {
   total_present: number;
 }
 
+export interface AttendanceTodaySummary {
+  date: string;
+  present_today: number;
+  absent_today: number;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;

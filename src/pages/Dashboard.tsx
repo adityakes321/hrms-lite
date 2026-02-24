@@ -4,17 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ErrorAlert from "@/components/ErrorAlert";
 import { employeeService } from "@/services/employeeService";
+import { attendanceService } from "@/services/attendanceService";
 
 const Dashboard = () => {
   const [totalEmployees, setTotalEmployees] = useState(0);
+  const [presentToday, setPresentToday] = useState<number | null>(null);
+  const [absentToday, setAbsentToday] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const employees = await employeeService.getAll();
+        const [employees, todaySummary] = await Promise.all([
+          employeeService.getAll(),
+          attendanceService.getTodaySummary(),
+        ]);
         setTotalEmployees(employees.length);
+        setPresentToday(todaySummary.present_today);
+        setAbsentToday(todaySummary.absent_today);
       } catch {
         setError("Failed to load dashboard data. Is the backend running?");
       } finally {
@@ -28,8 +36,8 @@ const Dashboard = () => {
 
   const stats = [
     { label: "Total Employees", value: totalEmployees, icon: Users, color: "text-primary" },
-    { label: "Present Today", value: "—", icon: UserCheck, color: "text-success" },
-    { label: "Absent Today", value: "—", icon: UserX, color: "text-destructive" },
+    { label: "Present Today", value: presentToday ?? "—", icon: UserCheck, color: "text-success" },
+    { label: "Absent Today", value: absentToday ?? "—", icon: UserX, color: "text-destructive" },
   ];
 
   return (

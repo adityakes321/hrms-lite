@@ -7,7 +7,18 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-secret-key-change-me")
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
 
-ALLOWED_HOSTS: list[str] = ["*"]
+def _split_csv_env(name: str) -> list[str]:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+_allowed_hosts = _split_csv_env("DJANGO_ALLOWED_HOSTS")
+if not _allowed_hosts and os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    _allowed_hosts = [os.environ["RENDER_EXTERNAL_HOSTNAME"]]
+
+ALLOWED_HOSTS: list[str] = ["*"] if DEBUG else _allowed_hosts
 
 INSTALLED_APPS = [
     "django.contrib.staticfiles",
@@ -37,10 +48,11 @@ if DJANGO_DATABASE == "mongodb":
     DATABASES = {"default": django_mongodb_backend.parse_uri(MONGODB_URI)}
     DEFAULT_AUTO_FIELD = "django_mongodb_backend.fields.ObjectIdAutoField"
 else:
+    SQLITE_PATH = os.environ.get("DJANGO_SQLITE_PATH")
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": SQLITE_PATH or (BASE_DIR / "db.sqlite3"),
         }
     }
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -67,6 +79,7 @@ REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": None,
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS: list[str] = _split_csv_env("CORS_ALLOWED_ORIGINS")
+CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
 
 

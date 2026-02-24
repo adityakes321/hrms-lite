@@ -21,7 +21,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
-    employee_id = serializers.CharField(write_only=True)
+    employee_id = serializers.CharField(source="employee.employee_id")
 
     class Meta:
         model = Attendance
@@ -33,18 +33,23 @@ class AttendanceSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        employee_id = attrs.get("employee_id")
-        date = attrs.get("date")
+        employee_data = attrs.get("employee") or {}
+        employee_id = employee_data.get("employee_id")
+        record_date = attrs.get("date")
         try:
             employee = Employee.objects.get(employee_id=employee_id)
         except Employee.DoesNotExist:
             raise serializers.ValidationError({"employee_id": "Employee not found."})
 
-        if Attendance.objects.filter(employee=employee, date=date).exists():
+        if Attendance.objects.filter(employee=employee, date=record_date).exists():
             raise serializers.ValidationError("Attendance for this employee and date already exists.")
 
         attrs["employee"] = employee
         return attrs
+
+    def create(self, validated_data):
+        employee = validated_data.pop("employee")
+        return Attendance.objects.create(employee=employee, **validated_data)
 
 
 class AttendanceSummarySerializer(serializers.Serializer):
