@@ -3,6 +3,8 @@ from .models import Employee, Attendance
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+
     class Meta:
         model = Employee
         fields = ["id", "employee_id", "full_name", "email", "department", "created_at"]
@@ -21,6 +23,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
     employee_id = serializers.CharField(source="employee.employee_id")
 
     class Meta:

@@ -1,5 +1,5 @@
 export interface Employee {
-  _id?: string;
+  id?: string;
   employee_id: string;
   full_name: string;
   email: string;
@@ -8,7 +8,7 @@ export interface Employee {
 }
 
 export interface AttendanceRecord {
-  _id?: string;
+  id?: string;
   employee_id: string;
   date: string;
   status: "Present" | "Absent";
