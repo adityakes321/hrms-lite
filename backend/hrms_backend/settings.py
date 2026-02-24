@@ -47,6 +47,7 @@ if DJANGO_DATABASE == "mongodb":
     MONGODB_URI = os.environ["MONGODB_URI"]
     DATABASES = {"default": django_mongodb_backend.parse_uri(MONGODB_URI)}
     DEFAULT_AUTO_FIELD = "django_mongodb_backend.fields.ObjectIdAutoField"
+    MIGRATION_MODULES = {"hrms": None}
 else:
     SQLITE_PATH = os.environ.get("DJANGO_SQLITE_PATH")
     if SQLITE_PATH:

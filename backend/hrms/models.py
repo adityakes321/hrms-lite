@@ -1,7 +1,15 @@
 from django.db import models
+import os
+
+_USING_MONGODB = os.environ.get("DJANGO_DATABASE", "sqlite").lower().strip() == "mongodb"
+if _USING_MONGODB:
+    import django_mongodb_backend.fields
 
 
 class Employee(models.Model):
+    if _USING_MONGODB:
+        id = django_mongodb_backend.fields.ObjectIdAutoField(primary_key=True)
+
     employee_id = models.CharField(max_length=50, unique=True)
     full_name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
@@ -13,6 +21,9 @@ class Employee(models.Model):
 
 
 class Attendance(models.Model):
+    if _USING_MONGODB:
+        id = django_mongodb_backend.fields.ObjectIdAutoField(primary_key=True)
+
     STATUS_PRESENT = "Present"
     STATUS_ABSENT = "Absent"
 
