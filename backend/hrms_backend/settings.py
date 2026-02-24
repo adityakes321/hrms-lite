@@ -49,6 +49,8 @@ if DJANGO_DATABASE == "mongodb":
     DEFAULT_AUTO_FIELD = "django_mongodb_backend.fields.ObjectIdAutoField"
 else:
     SQLITE_PATH = os.environ.get("DJANGO_SQLITE_PATH")
+    if SQLITE_PATH:
+        os.makedirs(os.path.dirname(SQLITE_PATH), exist_ok=True)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
